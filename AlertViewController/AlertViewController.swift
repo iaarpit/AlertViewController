@@ -100,6 +100,8 @@ open class AlertViewController: UIViewController {
     
     //MARK: Getters
     
+    open fileprivate(set) var loadingTimeInterval: TimeInterval = 0.0
+    
     open fileprivate(set) var spacing: CGFloat = -1.0
     
     open fileprivate(set) var stackSpacing: CGFloat = 0.0
@@ -181,19 +183,16 @@ open class AlertViewController: UIViewController {
     }
     
     open var isLoadingEnabled: Bool = false {
-        willSet {
-            if newValue, waitView != nil {
-                waitView.isHidden = false
-                waitView.start(with: 10)
-            } else if waitView != nil {
-                waitView.stop()
-            }
-        } didSet {
+        didSet {
             if waitView != nil {
                 //constraints
                 
                 let newValue = isLoadingEnabled
                 let alpha: CGFloat = newValue ? 1.0 : 0.0
+                
+                if !newValue {
+                    waitView.stop()
+                }
                 
                 if newValue {
                     waitView.isHidden = false
@@ -291,7 +290,7 @@ open class AlertViewController: UIViewController {
     
     open func show(in vc: UIViewController, withLoading loading: Bool = false) {
         vc.present(self, animated: false, completion: nil)
-        isLoadingEnabled = loading
+//        isLoadingEnabled = loading
     }
     
     //MARK: Selector Methods
@@ -480,7 +479,12 @@ open class AlertViewController: UIViewController {
     }
     
     fileprivate func setupWaitView() {
-        waitView.isHidden = true
+        if isLoadingEnabled {
+            waitView.isHidden = false
+            waitView.start(with: loadingTimeInterval)
+        } else {
+            waitView.isHidden = true
+        }
 //        waitView.centerXAnchor.constraint(equalTo: mainStackView.centerXAnchor).isActive = true
 //        waitView.centerYAnchor.constraint(equalTo: mainStackView.centerYAnchor).isActive = true
         waitView.widthAnchor.constraint(equalTo: mainStackView.widthAnchor, multiplier: 0.8).isActive = true
@@ -546,6 +550,7 @@ open class AlertViewController: UIViewController {
     
     public convenience init(title: String? = nil,
                             message: String? = nil,
+                            loadingTimeInterval: TimeInterval = 10,
                             verticalSpacing spacing: CGFloat = -1,
                             stackSpacing:CGFloat = 10,
                             sideSpacing: CGFloat = 20,
@@ -558,6 +563,7 @@ open class AlertViewController: UIViewController {
         self.init(nibName: nil, bundle: nil)
         _title = title
         _msg = message
+        self.loadingTimeInterval = loadingTimeInterval
         self.spacing = spacing
         self.stackSpacing = stackSpacing
         self.sideSpacing = sideSpacing
