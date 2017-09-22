@@ -17,12 +17,12 @@ open class AlertViewController: UIViewController {
     fileprivate var msgLabel: UILabel!
     
     fileprivate var cancelButton: UIButton!
-        
+    
     fileprivate var buttonsStackView: UIStackView!
     
     fileprivate var mainStackView: UIStackView!
     
-    fileprivate var activityIndicatorView: UIActivityIndicatorView!
+    fileprivate var waitView: WaitView!
     
     fileprivate var actions: [AlertAction]!
     
@@ -182,14 +182,32 @@ open class AlertViewController: UIViewController {
     
     open var isLoadingEnabled: Bool = false {
         willSet {
-            if newValue, activityIndicatorView != nil {
-                container.addSubview(activityIndicatorView)
-                activityIndicatorView.startAnimating()
-                customViewSizeRatio = 0.2
-            } else if activityIndicatorView != nil {
-                activityIndicatorView.removeFromSuperview()
-                activityIndicatorView.stopAnimating()
-                customViewSizeRatio = 0.0
+            if newValue, waitView != nil {
+                waitView.isHidden = false
+                waitView.start(with: 10)
+            } else if waitView != nil {
+                waitView.stop()
+            }
+        } didSet {
+            if waitView != nil {
+                //constraints
+                
+                let newValue = isLoadingEnabled
+                let alpha: CGFloat = newValue ? 1.0 : 0.0
+                
+                if newValue {
+                    waitView.isHidden = false
+                }
+                
+                animateStackView(withOptionalAnimations: { [weak self] in
+                    if let sself = self, !newValue {
+                        sself.waitView?.alpha = alpha
+                    }
+                }) {[weak self] in
+                    if let sself = self, !newValue {
+                        sself.waitView.isHidden = true
+                    }
+                }
             }
         }
     }
@@ -278,11 +296,11 @@ open class AlertViewController: UIViewController {
     
     //MARK: Selector Methods
     
-    internal func cancelAction(_ sender: UIButton){
+    @objc internal func cancelAction(_ sender: UIButton){
         dismiss(animated: true)
     }
     
-    internal func handleAction(_ sender: UIButton) {
+    @objc internal func handleAction(_ sender: UIButton) {
         actions[sender.tag].handler?(self)
     }
     
@@ -290,13 +308,13 @@ open class AlertViewController: UIViewController {
     
     open override func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
         if flag {
-            UIView.animate(withDuration: animationDuration, animations: { [weak self] _ in
+            UIView.animate(withDuration: animationDuration, animations: { [weak self] in
                 if let sself = self, let mainView = sself.mainView, let view = sself.view {
                     mainView.center.y = view.bounds.maxY + mainView.bounds.midY
                     view.backgroundColor = .clear
                 }
-            }, completion: { (complete) in
-                super.dismiss(animated: false, completion: completion)
+                }, completion: { (complete) in
+                    super.dismiss(animated: false, completion: completion)
             })
         } else {
             super.dismiss(animated: false, completion: completion)
@@ -312,7 +330,7 @@ open class AlertViewController: UIViewController {
         titleLabel = UILabel()
         msgLabel = UILabel()
         cancelButton = UIButton(type: .system)
-        activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+        waitView = WaitView(with: .progress)
         
         if spacing == -1 {
             spacing = deviceHeight * 0.012
@@ -324,12 +342,14 @@ open class AlertViewController: UIViewController {
         msgLabel.translatesAutoresizingMaskIntoConstraints = false
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
         cancelButton.translatesAutoresizingMaskIntoConstraints = false
+        waitView.translatesAutoresizingMaskIntoConstraints = false
         
         view.addSubview(mainView)
         mainView.addSubview(mainStackView)
         mainView.addSubview(cancelButton)
         mainStackView.addArrangedSubview(titleLabel)
         mainStackView.addArrangedSubview(msgLabel)
+        mainStackView.addArrangedSubview(waitView)
         mainStackView.addArrangedSubview(container)
         mainStackView.addArrangedSubview(buttonsStackView)
         
@@ -340,7 +360,7 @@ open class AlertViewController: UIViewController {
         setupButtonsStack()
         setupCancelButton()
         setupMainView()
-        setupActivityIndicatorView()
+        setupWaitView()
     }
     
     
@@ -424,7 +444,7 @@ open class AlertViewController: UIViewController {
         buttonsStackView.alignment = .fill
         buttonsStackView.axis = .vertical
         buttonsStackView.spacing = stackSpacing
-
+        
         buttonsStackView.widthAnchor.constraint(equalTo: mainStackView.widthAnchor, multiplier: 0.8).isActive = true
         
         for i in 0 ..< actions.count {
@@ -439,7 +459,7 @@ open class AlertViewController: UIViewController {
         }
         cancelButton.setTitle(cancelButtonTitle, for: [])
         cancelButton.titleLabel?.font = UIFont(name: fontName, size: cancelButtonHeight * 0.433)
-//        let showCancelButton = (isCancelButtonEnabled || (cancelButtonStyle?(cancelButton,cancelButtonHeight) ?? false)) && isCancelButtonEnabled
+        //        let showCancelButton = (isCancelButtonEnabled || (cancelButtonStyle?(cancelButton,cancelButtonHeight) ?? false)) && isCancelButtonEnabled
         cancelButtonStyle?(cancelButton, cancelButtonHeight)
         let cancelMultiplier: CGFloat = isCancelButtonEnabled ? 1.0 : 0.0
         cancelButton.isHidden = (isCancelButtonEnabled ? cancelButtonHeight : 0) <= 0
@@ -459,10 +479,12 @@ open class AlertViewController: UIViewController {
             mainView.centerYAnchor.constraint(equalTo: view.centerYAnchor,constant: contentOffset)
     }
     
-    fileprivate func setupActivityIndicatorView() {
-        activityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
-        activityIndicatorView.centerXAnchor.constraint(equalTo: container.centerXAnchor).isActive = true
-        activityIndicatorView.centerYAnchor.constraint(equalTo: container.centerYAnchor).isActive = true
+    fileprivate func setupWaitView() {
+        waitView.isHidden = true
+//        waitView.centerXAnchor.constraint(equalTo: mainStackView.centerXAnchor).isActive = true
+//        waitView.centerYAnchor.constraint(equalTo: mainStackView.centerYAnchor).isActive = true
+        waitView.widthAnchor.constraint(equalTo: mainStackView.widthAnchor, multiplier: 0.8).isActive = true
+//        waitView.heightAnchor.constraint(equalTo: waitView.widthAnchor, multiplier: 0.05).isActive = true
     }
     
     //MARK: Helper Functions
@@ -484,7 +506,7 @@ open class AlertViewController: UIViewController {
         self.modalPresentationStyle = .overCurrentContext
         self.modalTransitionStyle = .crossDissolve
     }
-
+    
     override open func viewDidLoad() {
         super.viewDidLoad()
         
@@ -522,15 +544,32 @@ open class AlertViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    public convenience init(title: String? = nil, message: String? = nil) {
+    public convenience init(title: String? = nil,
+                            message: String? = nil,
+                            verticalSpacing spacing: CGFloat = -1,
+                            stackSpacing:CGFloat = 10,
+                            sideSpacing: CGFloat = 20,
+                            titleFontSize: CGFloat = 0,
+                            messageFontSize: CGFloat = 0,
+                            buttonsHeight: CGFloat = 0,
+                            cancelButtonHeight: CGFloat = 0,
+                            fontName: String = "AvenirNext-Medium",
+                            boldFontName: String = "AvenirNext-DemiBold") {
         self.init(nibName: nil, bundle: nil)
         _title = title
         _msg = message
+        self.spacing = spacing
+        self.stackSpacing = stackSpacing
+        self.sideSpacing = sideSpacing
+        self.titleFontSize = titleFontSize
+        self.msgFontSize = messageFontSize
+        self.buttonHeight = buttonsHeight
+        self.cancelButtonHeight = cancelButtonHeight
+        self.fontName = fontName
+        self.fontNameBold = boldFontName
     }
     
 }
-
-
 
 public typealias ActionHandler = (AlertViewController) -> Void
 

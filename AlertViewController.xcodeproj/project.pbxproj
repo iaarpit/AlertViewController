@@ -13,6 +13,7 @@
 		0F6CE6AC1F2B854600F04286 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0F6CE6AB1F2B854600F04286 /* Assets.xcassets */; };
 		0F6CE6AF1F2B854600F04286 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0F6CE6AD1F2B854600F04286 /* LaunchScreen.storyboard */; };
 		0F6CE6B71F2B856300F04286 /* AlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F6CE6B61F2B856300F04286 /* AlertViewController.swift */; };
+		0FDEE2F71F743D4E009AE23F /* WaitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FDEE2F61F743D4E009AE23F /* WaitView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		0F6CE6AE1F2B854600F04286 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0F6CE6B01F2B854600F04286 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0F6CE6B61F2B856300F04286 /* AlertViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertViewController.swift; sourceTree = "<group>"; };
+		0FDEE2F61F743D4E009AE23F /* WaitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +63,7 @@
 				0F6CE6A81F2B854600F04286 /* Main.storyboard */,
 				0F6CE6AB1F2B854600F04286 /* Assets.xcassets */,
 				0F6CE6AD1F2B854600F04286 /* LaunchScreen.storyboard */,
+				0FDEE2F61F743D4E009AE23F /* WaitView.swift */,
 				0F6CE6B01F2B854600F04286 /* Info.plist */,
 				0F6CE6B61F2B856300F04286 /* AlertViewController.swift */,
 			);
@@ -141,6 +144,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0F6CE6A71F2B854600F04286 /* ViewController.swift in Sources */,
+				0FDEE2F71F743D4E009AE23F /* WaitView.swift in Sources */,
 				0F6CE6B71F2B856300F04286 /* AlertViewController.swift in Sources */,
 				0F6CE6A51F2B854600F04286 /* AppDelegate.swift in Sources */,
 			);
@@ -308,6 +312,7 @@
 				0F6CE6B51F2B854600F04286 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
