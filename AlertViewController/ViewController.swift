@@ -27,22 +27,13 @@ class ViewController: UIViewController {
         alert.isCancelButtonEnabled = true
         alert.isLoadingEnabled = true
         
-//        alert.cancelButtonStyle = { (button,height) in
-//            button.tintColor = UIColor.red
-//            button.setTitle("CANCEL", for: [])
-//        }
-        alert.show(in: self, withLoading: true)
-        
-//        self.alert.cancelButtonStyle = { (button,height) in
-//            button.tintColor = UIColor.green
-//            button.setTitle("CANCEL", for: [])
-//        }
+        alert.show(in: self)
         
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 5) {
             self.alert.addAction(AlertAction(title: "OK", handler: { (alertVC) in
                 self.alert.msg = "You presssed OK"
             }))
-//            self.alert.isCancelButtonEnabled = true
+            self.alert.isCancelButtonEnabled = true
             self.alert.isLoadingEnabled = false
         }
     }

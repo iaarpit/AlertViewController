@@ -10,6 +10,13 @@ import UIKit
 
 open class AlertViewController: UIViewController {
     
+    //MARK: Types
+    
+    struct FontName {
+        static let SFUIDisplayLight = "SFUIDisplay-Light"
+        static let SFUIText = "SFUIText"
+    }
+    
     //MARK: Private properties
     
     fileprivate var titleLabel: UILabel!
@@ -43,11 +50,11 @@ open class AlertViewController: UIViewController {
     }
     
     fileprivate var customViewHeightAnchor: NSLayoutConstraint!{
-        willSet{
+        willSet {
             if customViewHeightAnchor != nil {
                 customViewHeightAnchor.isActive = false
             }
-        }didSet{
+        } didSet{
             customViewHeightAnchor.isActive = true
         }
     }
@@ -110,17 +117,17 @@ open class AlertViewController: UIViewController {
     
     open fileprivate(set) var buttonHeight: CGFloat = 0.0
     
-    open fileprivate(set) var cancelButtonHeight:CGFloat = 0.0
+    open fileprivate(set) var cancelButtonHeight: CGFloat = 0.0
     
     open fileprivate(set) var titleFontSize: CGFloat = 0.0
     
     open fileprivate(set) var msgFontSize: CGFloat = 0.0
     
-    open fileprivate(set) var fontName: String = "AvenirNext-Medium"
+    open fileprivate(set) var textFontName = FontName.SFUIText
     
-    open fileprivate(set) var fontNameBold: String = "AvenirNext-DemiBold"
+    open fileprivate(set) var titleFontName = FontName.SFUIDisplayLight
     
-    open fileprivate(set) lazy var container: UIView = UIView()
+    open fileprivate(set) lazy var container = UIView()
     
     //MARK: Public Porperties
     
@@ -185,7 +192,6 @@ open class AlertViewController: UIViewController {
     open var isLoadingEnabled: Bool = false {
         didSet {
             if waitView != nil {
-                //constraints
                 
                 let newValue = isLoadingEnabled
                 let alpha: CGFloat = newValue ? 1.0 : 0.0
@@ -288,9 +294,8 @@ open class AlertViewController: UIViewController {
         animateStackView()
     }
     
-    open func show(in vc: UIViewController, withLoading loading: Bool = false) {
+    open func show(in vc: UIViewController) {
         vc.present(self, animated: false, completion: nil)
-//        isLoadingEnabled = loading
     }
     
     //MARK: Selector Methods
@@ -368,7 +373,7 @@ open class AlertViewController: UIViewController {
     fileprivate func setupButton(at index: Int) -> UIButton {
         
         if buttonHeight == 0 {
-            buttonHeight = deviceHeight * 0.07
+            buttonHeight = deviceHeight * 0.06
         }
         
         let action = actions[index]
@@ -378,8 +383,8 @@ open class AlertViewController: UIViewController {
         button.setTitleColor(button.tintColor, for: [])
         button.layer.borderColor = button.tintColor.cgColor
         button.layer.borderWidth = 1
-        button.layer.cornerRadius = buttonHeight/2
-        button.titleLabel?.font = UIFont(name: fontName, size: buttonHeight * 0.35)
+        button.layer.cornerRadius = 5.0 //buttonHeight/2
+        button.titleLabel?.font = UIFont(name: textFontName, size: buttonHeight * 0.4)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.heightAnchor.constraint(equalToConstant: buttonHeight).isActive = true
         self.buttonStyle?(button, buttonHeight, index)
@@ -406,11 +411,11 @@ open class AlertViewController: UIViewController {
     fileprivate func setupTitleLabel() {
         
         if titleFontSize == 0 {
-            titleFontSize = deviceHeight * 0.0269
+            titleFontSize = deviceHeight * 0.03
         }
         
-        let titleFont = UIFont(name: fontNameBold, size: titleFontSize)
-        //let titleHeight:CGFloat = mTitle == nil ? 0 : heightForView(mTitle!, font: titleFont!, width: deviceWidth * 0.6)
+        let titleFont = UIFont(name: titleFontName, size: titleFontSize)
+
         titleLabel.numberOfLines = 0
         titleLabel.lineBreakMode = NSLineBreakMode.byWordWrapping
         titleLabel.text = _title
@@ -421,12 +426,12 @@ open class AlertViewController: UIViewController {
     
     fileprivate func setupMsgLabel() {
         if msgFontSize == 0 {
-            msgFontSize = deviceHeight * 0.0239
+            msgFontSize = deviceHeight * 0.025
         }
-        let labelFont = UIFont(name: fontName, size: msgFontSize)!
+        let msgFont = UIFont(name: textFontName, size: msgFontSize)
         msgLabel.numberOfLines = 0
         msgLabel.lineBreakMode = NSLineBreakMode.byWordWrapping
-        msgLabel.font = labelFont
+        msgLabel.font = msgFont
         msgLabel.text = _msg
         msgLabel.textAlignment = .center
     }
@@ -454,11 +459,10 @@ open class AlertViewController: UIViewController {
     
     fileprivate func setupCancelButton() {
         if cancelButtonHeight == 0 {
-            cancelButtonHeight = deviceHeight * 0.0449
+            cancelButtonHeight = deviceHeight * 0.05
         }
         cancelButton.setTitle(cancelButtonTitle, for: [])
-        cancelButton.titleLabel?.font = UIFont(name: fontName, size: cancelButtonHeight * 0.433)
-        //        let showCancelButton = (isCancelButtonEnabled || (cancelButtonStyle?(cancelButton,cancelButtonHeight) ?? false)) && isCancelButtonEnabled
+        cancelButton.titleLabel?.font = UIFont(name: textFontName, size: cancelButtonHeight * 0.45)
         cancelButtonStyle?(cancelButton, cancelButtonHeight)
         let cancelMultiplier: CGFloat = isCancelButtonEnabled ? 1.0 : 0.0
         cancelButton.isHidden = (isCancelButtonEnabled ? cancelButtonHeight : 0) <= 0
@@ -485,10 +489,7 @@ open class AlertViewController: UIViewController {
         } else {
             waitView.isHidden = true
         }
-//        waitView.centerXAnchor.constraint(equalTo: mainStackView.centerXAnchor).isActive = true
-//        waitView.centerYAnchor.constraint(equalTo: mainStackView.centerYAnchor).isActive = true
         waitView.widthAnchor.constraint(equalTo: mainStackView.widthAnchor, multiplier: 0.8).isActive = true
-//        waitView.heightAnchor.constraint(equalTo: waitView.widthAnchor, multiplier: 0.05).isActive = true
     }
     
     //MARK: Helper Functions
@@ -558,8 +559,8 @@ open class AlertViewController: UIViewController {
                             messageFontSize: CGFloat = 0,
                             buttonsHeight: CGFloat = 0,
                             cancelButtonHeight: CGFloat = 0,
-                            fontName: String = "AvenirNext-Medium",
-                            boldFontName: String = "AvenirNext-DemiBold") {
+                            textFontName: String = FontName.SFUIText,
+                            titleFontName: String = FontName.SFUIDisplayLight) {
         self.init(nibName: nil, bundle: nil)
         _title = title
         _msg = message
@@ -571,8 +572,8 @@ open class AlertViewController: UIViewController {
         self.msgFontSize = messageFontSize
         self.buttonHeight = buttonsHeight
         self.cancelButtonHeight = cancelButtonHeight
-        self.fontName = fontName
-        self.fontNameBold = boldFontName
+        self.textFontName = textFontName
+        self.titleFontName = titleFontName
     }
     
 }
